@@ -3,13 +3,17 @@ package com.example.tracker.auth;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 
 import static com.example.tracker.security.UserRole.ADMIN;
+import static com.example.tracker.security.UserRole.BASIC_USER;
 
 @Repository("real")
 public class RealUserDaoService implements UserDao {
@@ -35,8 +39,10 @@ public class RealUserDaoService implements UserDao {
 
         String sql = "" +
                 "SELECT " +
+                " users.user_id, " +
                 " users.username, " +
-                " users.password " +
+                " users.password, " +
+                " users.is_admin " +
                 "FROM users ";
         return jdbcTemplate.query(
                 sql,
@@ -46,12 +52,15 @@ public class RealUserDaoService implements UserDao {
 
     private RowMapper<User> mapUserFromDb() {
         return (resultSet, i) -> {
+            UUID userId =  UUID.fromString(resultSet.getString("user_id"));
             String username = resultSet.getString("username");
             String password = resultSet.getString("password");
+            Boolean isAdmin = resultSet.getBoolean("is_admin");
+            Set<? extends GrantedAuthority> grantedAuthorities = isAdmin ? ADMIN.getGrantedAuthorities() : BASIC_USER.getGrantedAuthorities();
             return new User(
-                    username,
+                    userId, username,
                     passwordEncoder.encode(password),
-                    ADMIN.getGrantedAuthorities(),
+                    isAdmin, grantedAuthorities,
                     true,
                     true,
                     true,

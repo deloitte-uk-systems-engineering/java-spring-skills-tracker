@@ -5,31 +5,44 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.Set;
+import java.util.UUID;
 
 public class User implements UserDetails {
 
+    private final UUID id;
     private final String username;
     private final String password;
+    private final boolean isAdmin;
     private final Set<? extends GrantedAuthority> grantedAuthorities;
     private final boolean isAccountNonExpired;
     private final boolean isAccountNonLocked;
     private final boolean isCredentialsNonExpired;
     private final boolean isEnabled;
 
-    public User(String username,
+    public User(UUID id, String username,
                 String password,
-                Set<? extends GrantedAuthority> grantedAuthorities,
+                boolean isAdmin, Set<? extends GrantedAuthority> grantedAuthorities,
                 boolean isAccountNonExpired,
                 boolean isAccountNonLocked,
                 boolean isCredentialsNonExpired,
                 boolean isEnabled) {
+        this.id = id;
         this.username = username;
         this.password = password;
+        this.isAdmin = isAdmin;
         this.grantedAuthorities = grantedAuthorities;
         this.isAccountNonExpired = isAccountNonExpired;
         this.isAccountNonLocked = isAccountNonLocked;
         this.isCredentialsNonExpired = isCredentialsNonExpired;
         this.isEnabled = isEnabled;
+    }
+
+    public UUID getId() {
+        return id;
+    }
+
+    public boolean isAdmin() {
+        return isAdmin;
     }
 
     @Override
